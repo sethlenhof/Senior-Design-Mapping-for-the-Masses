@@ -24,6 +24,8 @@ UPLOAD_FOLDER = '/var/www/api/uploads'
 DOWNLOAD_FOLDER = '/var/www/api/downloads'
 
 #This is where the poind cloud is read into
+# if you want to test using my files update to either SecondFloorScan.xyz or firstFloor.xyz
+# blueprintfile = os.path.join(UPLOAD_FOLDER, 'SecondFloorScan.xyz')
 blueprintfile = os.path.join(UPLOAD_FOLDER, 'blueprint.xyz')
 blueprint = pd.read_csv(blueprintfile, header=None, delimiter=' ',skiprows=[0])
 #blueprint = pd.read_csv("/content/point_cloud__meters.xyz", header=None, delimiter=' ',)
@@ -249,7 +251,7 @@ ax.scatter(tx,ty,tz,color="y",s=5)
 
 #show results from birds eye view
 ax.view_init(elev=90, azim=0)
-circle = plt.Circle((0, 0), 1, color='r')
+circle = plt.Circle((0, 0), 0.1, color='r')
 ax.add_patch(circle)
 art3d.pathpatch_2d_to_3d(circle, z=0, zdir='z')
 ax.axis("equal")
