@@ -24,6 +24,8 @@ UPLOAD_FOLDER = '/var/www/api/uploads'
 DOWNLOAD_FOLDER = '/var/www/api/downloads'
 
 #This is where the poind cloud is read into
+# if you want to test using my files update to either SecondFloorScan.xyz or firstFloor.xyz
+# blueprintfile = os.path.join(UPLOAD_FOLDER, 'SecondFloorScan.xyz')
 blueprintfile = os.path.join(UPLOAD_FOLDER, 'blueprint.xyz')
 blueprint = pd.read_csv(blueprintfile, header=None, delimiter=' ',skiprows=[0])
 #blueprint = pd.read_csv("/content/point_cloud__meters.xyz", header=None, delimiter=' ',)

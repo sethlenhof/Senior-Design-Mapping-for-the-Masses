@@ -1,3 +1,5 @@
+# this is the controller for the endpoints
+
 from flask import Flask, request, send_file
 import aspose.threed as a3d
 import os
@@ -20,8 +22,8 @@ def convert_file():
         return "No selected file"
 
     if file:
-        filename = os.path.join(UPLOAD_FOLDER, 'Room.usdz')
-        roomname = os.path.join(SCRIPT_LOCATION, 'Room.glb')
+        filename = os.path.join(UPLOAD_FOLDER, 'userScan.usdz')
+        roomname = os.path.join(SCRIPT_LOCATION, 'userScan.glb')
         envname = os.path.join(UPLOAD_FOLDER, 'userEnvironment.xyz')
         if os.path.isfile(roomname):
             os.system('rm ' + roomname)
@@ -34,10 +36,10 @@ def convert_file():
 
         license = a3d.License()
         license.set_license("/var/www/api/scripts/Aspose.3D.lic")
-        convfilename = os.path.join(UPLOAD_FOLDER, 'Room.usdz')
+        convfilename = os.path.join(UPLOAD_FOLDER, 'userScan.usdz')
         outputname = os.path.join(UPLOAD_FOLDER, 'userEnvironment.xyz')
-        os.system('usd2gltf -i ' + convfilename + ' -o /var/www/api/scripts/Room.glb')
-        scene = a3d.Scene.from_file("/var/www/api/scripts/Room.glb")
+        os.system('usd2gltf -i ' + convfilename + ' -o /var/www/api/scripts/userScan.glb')
+        scene = a3d.Scene.from_file("/var/www/api/scripts/userScan.glb")
         scene.save(outputname)
 
 
@@ -72,8 +74,8 @@ def upload_user_environment_usdz():
         return "No selected file"
 
     if file:
-        filename = os.path.join(UPLOAD_FOLDER, 'Room.usdz')
-        roomname = os.path.join(SCRIPT_LOCATION, 'Room.glb')
+        filename = os.path.join(UPLOAD_FOLDER, 'userScan.usdz')
+        roomname = os.path.join(SCRIPT_LOCATION, 'userScan.glb')
         envname = os.path.join(UPLOAD_FOLDER, 'userEnvironment.xyz')
         if os.path.isfile(envname):
             os.system('rm ' + envname)
@@ -85,10 +87,10 @@ def upload_user_environment_usdz():
         
         license = a3d.License()
         license.set_license("/var/www/api/scripts/Aspose.3D.lic")
-        convfilename = os.path.join(UPLOAD_FOLDER, 'Room.usdz')
+        convfilename = os.path.join(UPLOAD_FOLDER, 'userScan.usdz')
         outputname = os.path.join(UPLOAD_FOLDER, 'userEnvironment.xyz')
-        os.system('usd2gltf -i ' + convfilename + ' -o /var/www/api/scripts/Room.glb')
-        scene = a3d.Scene.from_file("/var/www/api/scripts/Room.glb")
+        os.system('usd2gltf -i ' + convfilename + ' -o /var/www/api/scripts/userScan.glb')
+        scene = a3d.Scene.from_file("/var/www/api/scripts/userScan.glb")
         scene.save(outputname)
 
         return "User Environment uploaded successfully"
