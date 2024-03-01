@@ -249,7 +249,7 @@ ax.scatter(tx,ty,tz,color="y",s=5)
 
 #show results from birds eye view
 ax.view_init(elev=90, azim=0)
-circle = plt.Circle((0, 0), 1, color='r')
+circle = plt.Circle((0, 0), 0.1, color='r')
 ax.add_patch(circle)
 art3d.pathpatch_2d_to_3d(circle, z=0, zdir='z')
 ax.axis("equal")
