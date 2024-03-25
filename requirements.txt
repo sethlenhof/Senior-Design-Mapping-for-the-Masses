@@ -1,5 +1,4 @@
 matplotlib
-mpl_toolkits
 numpy
 pandas
 scipy
@@ -8,3 +7,4 @@ plyfile
 open3d
 aspose-3d
 usd2gltf
+gunicorn

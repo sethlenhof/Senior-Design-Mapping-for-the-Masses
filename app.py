@@ -7,9 +7,10 @@ import subprocess
 import sys
 
 app = Flask(__name__, static_url_path='/myflaskapp/static')
-UPLOAD_FOLDER = '/var/www/api/uploads'
-DOWNLOAD_FOLDER = '/var/www/api/downloads'
-SCRIPT_LOCATION = '/var/www/api/scripts'
+application = app
+UPLOAD_FOLDER = '/var/www/Senior-Design-Mapping-for-the-Masses/uploads'
+DOWNLOAD_FOLDER = '/var/www/Senior-Design-Mapping-for-the-Masses/downloads'
+SCRIPT_LOCATION = '/var/www/Senior-Design-Mapping-for-the-Masses/scripts'
 
 
 @app.route('/convertFile', methods=['POST'])
