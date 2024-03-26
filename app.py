@@ -87,7 +87,7 @@ def upload_user_environment_usdz():
         file.save(filename)
         
         license = a3d.License()
-        license.set_license("/var/www/Senior-Design-Mapping-for-the-Massesscripts/Aspose.3D.lic")
+        license.set_license("/var/www/Senior-Design-Mapping-for-the-Masses/scripts/Aspose.3D.lic")
         convfilename = os.path.join(UPLOAD_FOLDER, 'userEnvironment.usdz')
         outputname = os.path.join(UPLOAD_FOLDER, 'userEnvironment.xyz')
         os.system('usd2gltf -i ' + convfilename + ' -o /var/www/Senior-Design-Mapping-for-the-Massesscripts/userEnvironment.glb')
