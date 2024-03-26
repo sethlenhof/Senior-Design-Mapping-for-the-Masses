@@ -7,4 +7,5 @@ plyfile
 open3d
 aspose-3d
 usd2gltf
+usd-core
 gunicorn
