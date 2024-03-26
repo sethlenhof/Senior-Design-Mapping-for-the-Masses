@@ -17,8 +17,8 @@ import mpl_toolkits.mplot3d.art3d as art3d
 #ignore warnings
 pd.set_option('mode.chained_assignment', None)
 
-UPLOAD_FOLDER = '/var/www/api/uploads'
-DOWNLOAD_FOLDER = '/var/www/api/downloads'
+UPLOAD_FOLDER = '/var/www/Senior-Design-Mapping-for-the-Masses/uploads'
+DOWNLOAD_FOLDER = '/var/www/Senior-Design-Mapping-for-the-Masses/downloads'
 
 #This is where the poind cloud is read into
 # if you want to test using my files update to either secondFloor.xyz or firstFloor.xyz
