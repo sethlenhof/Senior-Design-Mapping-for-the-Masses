@@ -8,9 +8,9 @@ import sys
 
 app = Flask(__name__, static_url_path='/myflaskapp/static')
 application = app
-UPLOAD_FOLDER = '/var/www/Senior-Design-Mapping-for-the-Masses/uploads'
-DOWNLOAD_FOLDER = '/var/www/Senior-Design-Mapping-for-the-Masses/downloads'
-SCRIPT_LOCATION = '/var/www/Senior-Design-Mapping-for-the-Masses/scripts'
+UPLOAD_FOLDER = '/uploads'
+DOWNLOAD_FOLDER = '/downloads'
+SCRIPT_LOCATION = '/scripts'
 
 
 @app.route('/convertFile', methods=['POST'])
@@ -36,11 +36,11 @@ def convert_file():
         # Call the conversion script
 
         license = a3d.License()
-        license.set_license("/var/www/Senior-Design-Mapping-for-the-Masses/scripts/Aspose.3D.lic")
+        license.set_license("/scripts/Aspose.3D.lic")
         convfilename = os.path.join(UPLOAD_FOLDER, 'userEnvironment.usdz')
         outputname = os.path.join(UPLOAD_FOLDER, 'userEnvironment.xyz')
-        os.system('usd2gltf -i ' + convfilename + ' -o /var/www/Senior-Design-Mapping-for-the-Masses/scripts/userEnvironment.glb')
-        scene = a3d.Scene.from_file("/var/www/Senior-Design-Mapping-for-the-Masses/scripts/userEnvironment.glb")
+        os.system('usd2gltf -i ' + convfilename + ' -o /scripts/userEnvironment.glb')
+        scene = a3d.Scene.from_file("/scripts/userEnvironment.glb")
         scene.save(outputname)
 
 
@@ -87,11 +87,11 @@ def upload_user_environment_usdz():
         file.save(filename)
         
         license = a3d.License()
-        license.set_license("/var/www/Senior-Design-Mapping-for-the-Masses/scripts/Aspose.3D.lic")
+        license.set_license("/scripts/Aspose.3D.lic")
         convfilename = os.path.join(UPLOAD_FOLDER, 'userEnvironment.usdz')
         outputname = os.path.join(UPLOAD_FOLDER, 'userEnvironment.xyz')
         os.system('usd2gltf -i ' + convfilename + ' -o /var/www/Senior-Design-Mapping-for-the-Massesscripts/userEnvironment.glb')
-        scene = a3d.Scene.from_file("/var/www/Senior-Design-Mapping-for-the-Masses/scripts/userEnvironment.glb")
+        scene = a3d.Scene.from_file("/scripts/userEnvironment.glb")
         scene.save(outputname)
 
         return "User Environment uploaded successfully"
@@ -118,7 +118,7 @@ def upload_blueprint():
 def get_backendpng():
     filename = os.path.join(DOWNLOAD_FOLDER, 'export.png')
     if os.path.isfile(filename):
-        # subprocess.run(['rm', '/var/www/Senior-Design-Mapping-for-the-Masses/export.png'])
+        # subprocess.run(['rm', '/export.png'])
         os.system("rm " + filename)
     os.system('python3 ' + SCRIPT_LOCATION + '/backend.py')
     return send_file(filename, as_attachment=True)
@@ -128,7 +128,7 @@ def get_backendpng():
 def get_backendply():
     filename = os.path.join(DOWNLOAD_FOLDER, 'export.ply')
     if os.path.isfile(filename):
-        # subprocess.run(['rm', '/var/www/Senior-Design-Mapping-for-the-Masses/export.png'])
+        # subprocess.run(['rm', '/export.png'])
         os.system("rm " + filename)
     os.system('python3 ' + SCRIPT_LOCATION + '/backend2.py')
     return send_file(filename, as_attachment=True)
