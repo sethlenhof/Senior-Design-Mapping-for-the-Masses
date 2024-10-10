@@ -13,8 +13,9 @@ import mpl_toolkits.mplot3d.art3d as art3d
 #ignore warnings
 pd.set_option('mode.chained_assignment', None)
 
-UPLOAD_FOLDER = '/uploads'
-DOWNLOAD_FOLDER = '/downloads'
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+UPLOAD_FOLDER = os.path.join(BASE_DIR, '../uploads')
+DOWNLOAD_FOLDER = os.path.join(BASE_DIR, '../downloads')
 
 #This is where the poind cloud is read into
 # if you want to test using my files update to either SecondFloorScan.xyz or firstFloor.xyz
