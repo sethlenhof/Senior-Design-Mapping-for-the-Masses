@@ -3,13 +3,8 @@ from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 import pandas as pd
 import sys
-import csv
-from matplotlib import animation
 import math
 import scipy
-import random
-import pygltflib as pygltf
-from plyfile import PlyData, PlyElement
 import open3d as o3d
 import os
 import mpl_toolkits.mplot3d.art3d as art3d

@@ -1,11 +1,9 @@
 matplotlib
-numpy
+numpy==1.26.4
 pandas
 scipy
-pygltflib
 plyfile
 open3d
 aspose-3d
 usd2gltf
 usd-core
-gunicorn
