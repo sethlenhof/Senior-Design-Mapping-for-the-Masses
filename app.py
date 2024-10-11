@@ -1,10 +1,10 @@
 # this is the controller for the endpoints
 
 from flask import Flask, request, send_file
-import aspose.threed as a3d
 import os
-import subprocess
-import sys
+from utils.conversion import UsdzToXyzConverter
+from utils.file_utils import save_file, remove_file_if_exists, get_full_path
+from utils.scene_manager import SceneManager
 
 app = Flask(__name__, static_url_path='/myflaskapp/static')
 application = app
@@ -12,46 +12,34 @@ application = app
 
 # Get the absolute path of the current file (app.py)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
-# Define folders relative to the current file's location
 UPLOAD_FOLDER = os.path.join(BASE_DIR, 'uploads')
 DOWNLOAD_FOLDER = os.path.join(BASE_DIR, 'downloads')
 SCRIPT_LOCATION = os.path.join(BASE_DIR, 'scripts')
 
+# Initialize the scene manager
+scene_manager = SceneManager(UPLOAD_FOLDER, DOWNLOAD_FOLDER)
+
+@app.route('/')
+def hello_world():
+    return "Hello, World!"
+
 
 @app.route('/convertFile', methods=['POST'])
 def convert_file():
-    if 'file' not in request.files:
+    file = request.files.get('file')
+    if not file:
         return "No file part"
+    
+    usdz_path = get_full_path(UPLOAD_FOLDER, 'userEnvironment.usdz')
+    xyz_path = get_full_path(UPLOAD_FOLDER, 'userEnvironment.xyz')
+    remove_file_if_exists(usdz_path)
+    save_file(file, usdz_path)
 
-    file = request.files['file']
-    if file.filename == '':
-        return "No selected file"
+    # Perform conversion
+    converter = UsdzToXyzConverter(usdz_path, xyz_path)
+    converter.convert()
 
-    if file:
-        filename = os.path.join(UPLOAD_FOLDER, 'userEnvironment.usdz')
-        roomname = os.path.join(SCRIPT_LOCATION, 'userEnvironment.glb')
-        envname = os.path.join(UPLOAD_FOLDER, 'userEnvironment.xyz')
-        if os.path.isfile(roomname):
-            os.system('rm ' + roomname)
-        if os.path.isfile(filename):
-            os.system('rm ' + filename)
-        if os.path.isfile(envname):
-            os.system('rm' + envname)
-        file.save(filename)
-        # Call the conversion script
-
-        license = a3d.License()
-        license.set_license("/scripts/Aspose.3D.lic")
-        convfilename = os.path.join(UPLOAD_FOLDER, 'userEnvironment.usdz')
-        outputname = os.path.join(UPLOAD_FOLDER, 'userEnvironment.xyz')
-        os.system('usd2gltf -i ' + convfilename + ' -o /scripts/userEnvironment.glb')
-        scene = a3d.Scene.from_file("/scripts/userEnvironment.glb")
-        scene.save(outputname)
-
-
-        # Create a direct download link for the second file
-        return send_file(envname, as_attachment=True)
+    return send_file(xyz_path, as_attachment=True)
 
 
 @app.route('/uploadUserEnvironment', methods=['POST'])
@@ -63,44 +51,36 @@ def upload_user_environment():
     if file.filename == '':
         return "No selected file"
 
-    if file:
-        filename = os.path.join(UPLOAD_FOLDER, 'userEnvironment.xyz')
-        if os.path.isfile(filename):
-            os.system('rm ' + filename)
-        file.save(filename)
-        return "User Environment uploaded successfully"
+    xyzPath = get_full_path(UPLOAD_FOLDER, 'userEnvironment.xyz')
+    remove_file_if_exists(xyzPath)
+    save_file(file, xyzPath)
+    return "User Environment uploaded successfully"
 
 
 @app.route('/uploadUserEnvironmentUSDZ', methods=['POST'])
 def upload_user_environment_usdz():
-    if 'file' not in request.files:
+    file = request.files.get('file')
+    if not file:
         return "No file part"
 
-    file = request.files['file']
     if file.filename == '':
         return "No selected file"
 
-    if file:
-        filename = os.path.join(UPLOAD_FOLDER, 'userEnvironment.usdz')
-        roomname = os.path.join(SCRIPT_LOCATION, 'userEnvironment.glb')
-        envname = os.path.join(UPLOAD_FOLDER, 'userEnvironment.xyz')
-        if os.path.isfile(envname):
-            os.system('rm ' + envname)
-        if os.path.isfile(roomname):
-            os.system('rm ' + roomname)
-        if os.path.isfile(filename):
-            os.system('rm ' + filename)
-        file.save(filename)
-        
-        license = a3d.License()
-        license.set_license("/scripts/Aspose.3D.lic")
-        convfilename = os.path.join(UPLOAD_FOLDER, 'userEnvironment.usdz')
-        outputname = os.path.join(UPLOAD_FOLDER, 'userEnvironment.xyz')
-        os.system('usd2gltf -i ' + convfilename + ' -o /var/www/Senior-Design-Mapping-for-the-Massesscripts/userEnvironment.glb')
-        scene = a3d.Scene.from_file("/scripts/userEnvironment.glb")
-        scene.save(outputname)
+    usdz_path = get_full_path(UPLOAD_FOLDER, 'userEnvironment.usdz')
+    xyz_path = get_full_path(UPLOAD_FOLDER, 'userEnvironment.xyz')
 
-        return "User Environment uploaded successfully"
+    # Remove any existing files before processing
+    remove_file_if_exists(usdz_path)
+    remove_file_if_exists(xyz_path)
+
+    # Save the USDZ file
+    save_file(file, usdz_path)
+
+    # Convert USDZ to XYZ (reuse the converter logic you already have)
+    converter = UsdzToXyzConverter(usdz_path, xyz_path)
+    converter.convert()
+
+    return "User Environment uploaded and converted successfully"
 
 
 @app.route('/uploadBlueprint', methods=['POST'])
@@ -112,33 +92,26 @@ def upload_blueprint():
     if file.filename == '':
         return "No selected file"
 
-    if file:
-        filename = os.path.join(UPLOAD_FOLDER, 'blueprint.xyz')
-        if os.path.isfile(filename):
-            os.system("rm " + filename)
-        file.save(filename)
-        return "Blueprint uploaded successfully"
+    filename = get_full_path(UPLOAD_FOLDER, 'blueprint.xyz')
+    remove_file_if_exists(filename)
+    save_file(file, filename)
+    return "Blueprint uploaded successfully"
 
 
 @app.route('/getBackendpng', methods=['GET'])
 def get_backendpng():
-    filename = os.path.join(DOWNLOAD_FOLDER, 'export.png')
-    if os.path.isfile(filename):
-        # subprocess.run(['rm', '/export.png'])
-        os.system("rm " + filename)
+    filename = get_full_path(DOWNLOAD_FOLDER, 'export.png')
+    remove_file_if_exists(filename)
     os.system('python3 ' + SCRIPT_LOCATION + '/backend.py')
     return send_file(filename, as_attachment=True)
 
 
 @app.route('/getBackendply', methods=['GET'])
 def get_backendply():
-    filename = os.path.join(DOWNLOAD_FOLDER, 'export.ply')
-    if os.path.isfile(filename):
-        # subprocess.run(['rm', '/export.png'])
-        os.system("rm " + filename)
+    filename = get_full_path(DOWNLOAD_FOLDER, 'export.ply')
+    remove_file_if_exists(filename)
     os.system('python3 ' + SCRIPT_LOCATION + '/backend2.py')
     return send_file(filename, as_attachment=True)
-
 
 if __name__ == '__main__':
     app.run()
