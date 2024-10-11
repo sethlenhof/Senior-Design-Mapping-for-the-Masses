@@ -8,9 +8,15 @@ import sys
 
 app = Flask(__name__, static_url_path='/myflaskapp/static')
 application = app
-UPLOAD_FOLDER = '/uploads'
-DOWNLOAD_FOLDER = '/downloads'
-SCRIPT_LOCATION = '/scripts'
+
+
+# Get the absolute path of the current file (app.py)
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Define folders relative to the current file's location
+UPLOAD_FOLDER = os.path.join(BASE_DIR, 'uploads')
+DOWNLOAD_FOLDER = os.path.join(BASE_DIR, 'downloads')
+SCRIPT_LOCATION = os.path.join(BASE_DIR, 'scripts')
 
 
 @app.route('/convertFile', methods=['POST'])
