@@ -1,7 +1,7 @@
 # this is the controller for the endpoints
 
 from flask import Flask, request, send_file
-import os
+import os, time
 from utils.conversion import UsdzToXyzConverter
 from utils.file_utils import save_file, remove_file_if_exists, get_full_path
 from utils.scene_manager import SceneManager
@@ -103,6 +103,7 @@ def get_backendpng():
     filename = get_full_path(DOWNLOAD_FOLDER, 'export.png')
     remove_file_if_exists(filename)
     os.system('python3 ' + SCRIPT_LOCATION + '/backend.py')
+    wait_for_file(filename)
     return send_file(filename, as_attachment=True)
 
 
@@ -111,7 +112,17 @@ def get_backendply():
     filename = get_full_path(DOWNLOAD_FOLDER, 'export.ply')
     remove_file_if_exists(filename)
     os.system('python3 ' + SCRIPT_LOCATION + '/backend2.py')
+    wait_for_file(filename)
     return send_file(filename, as_attachment=True)
+
+
+def wait_for_file(filename, timeout=60):
+    """Wait for a file to appear on the file system with a timeout."""
+    start_time = time.time()
+    while not os.path.exists(filename):
+        if time.time() - start_time > timeout:
+            raise TimeoutError(f"File {filename} was not generated in time.")
+        time.sleep(1)  # Check every 1 second
 
 if __name__ == '__main__':
     app.run()
