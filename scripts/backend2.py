@@ -1,13 +1,9 @@
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 import pandas as pd
-import sys
 import math
 import scipy
 import open3d as o3d
 import os
-import mpl_toolkits.mplot3d.art3d as art3d
 
 #ignore warnings
 pd.set_option('mode.chained_assignment', None)
@@ -16,11 +12,9 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 UPLOAD_FOLDER = os.path.join(BASE_DIR, '../uploads')
 DOWNLOAD_FOLDER = os.path.join(BASE_DIR, '../downloads')
 
-
 #This is where the poind cloud is read into
 blueprintfile = os.path.join(UPLOAD_FOLDER, 'blueprint.xyz')
 blueprint = pd.read_csv(blueprintfile, header=None, delimiter=' ',skiprows=[0])
-
 
 # this is the users environment
 userfile = os.path.join(UPLOAD_FOLDER, 'userEnvironment.xyz')
@@ -37,7 +31,6 @@ littleShiftInX = little[1].min()
 littleShiftInY = little[0].min()
 
 littleShiftInZ = little[2].min()
-
 
 #rotate blueprint if nessecary
 angle_deg = 234
@@ -67,26 +60,12 @@ def bringToCenter(dataframe):
 bringToCenter(blueprint)
 bringToCenter(little)
 
-#set up plot
-#fig=plt.figure()
-#ax=Axes3D(fig)
-#ax = fig.add_subplot(111, projection='3d')
 axis = 10
-# ax.set_xlim3d(0,axis)
-# ax.set_ylim3d(0,axis)
-# ax.set_zlim3d(0,axis)
-# ax.set_xlabel('x')
-# ax.set_ylabel('y')
-# ax.set_zlabel('z')
-
-
 
 #read in x y z of blueprint
 xn = blueprint[0]
 yn = blueprint[2]
 zn = blueprint[1]
-
-
 
 # each node contains a dataframe that is a subsection of the blueprint
 # value for indexing purposes and each node indexes how much each subsection has to move in
@@ -199,28 +178,6 @@ tz = little[1]
 resultx = nodes[result].df[0]
 resulty = nodes[result].df[2]
 
-
-# ax.scatter(resultx,resulty,color="r",s=5)
-
-# load in final result of blueprint in blue
-# ax.scatter(xn,yn,zn,color="b",s=5)
-
-# load in user environment in yellow
-# ax.scatter(tx,ty,tz,color="y",s=5)
-
-
-# show results from birds eye view
-# ax.view_init(elev=90, azim=0)
-# circle = plt.Circle((0, 0), 0.2, color='r')
-# ax.add_patch(circle)
-# art3d.pathpatch_2d_to_3d(circle, z=0, zdir='z')
-# ax.axis("equal")
-# downloadfile = os.path.join(DOWNLOAD_FOLDER, 'export.png')
-# plt.savefig(downloadfile)
-
-
-#plot results
-#plt.show()
 
 
 #prepare blue print for exporting

@@ -31,7 +31,6 @@ blueprint[0] = blueprint[0] * -1
 
 little[0] = little[0] * -1
 
-
 # index how much we had to shift user environment point cloud in order to put it back later
 littleShiftInX = little[1].min()
 
@@ -71,10 +70,6 @@ bringToCenter(little)
 fig=plt.figure()
 ax=Axes3D(fig)
 ax = fig.add_subplot(111, projection='3d')
-axis = 10
-# ax.set_xlim3d(0,axis)
-# ax.set_ylim3d(0,axis)
-# ax.set_zlim3d(0,axis)
 ax.set_xlabel('x')
 ax.set_ylabel('y')
 ax.set_zlabel('z')
@@ -142,8 +137,6 @@ for i in range(len(dflist)):
   bringToCenter(temp.df)
   nodes.append(temp)
 
-
-
 # takes in user environment and list of subsection nodes as argument. does a linear search through the node list, measuring hausdorff from user
 # environment to subsection, and returns the index of node list that gives the smallest value
 def findLocation(littleDF,nodeList):
@@ -195,14 +188,11 @@ tz = little[1]
 resultx = nodes[result].df[0]
 resulty = nodes[result].df[2]
 
-# ax.scatter(resultx,resulty,color="r",s=5)
-
 #load in final result of blueprint in blue
 ax.scatter(xn,yn,zn,color="b",s=5)
 
 #load in user environment in yellow
 ax.scatter(tx,ty,tz,color="y",s=5)
-
 
 #show results from birds eye view
 ax.view_init(elev=90, azim=0)
@@ -213,22 +203,8 @@ ax.axis("equal")
 downloadfile = os.path.join(DOWNLOAD_FOLDER, 'export.png')
 plt.savefig(downloadfile)
 
-#plot results
-#plt.show()
 
 #prepare blue print for exporting
 df = blueprint
 #reverse the x dimension again since this is how the front end likes it
 df[0] = df[0] * -1
-
-# point_cloud = o3d.geometry.PointCloud()
-# point_cloud.points = o3d.utility.Vector3dVector(df[[0, 2, 1]].values)
-
-# # Save the point cloud as a PLY file
-# o3d.io.write_point_cloud('export.ply', point_cloud)
-
-#point_cloud = o3d.geometry.PointCloud()
-#point_cloud.points = o3d.utility.Vector3dVector(df[[0, 1, 2]].values)
-
-# Save the point cloud as an ASCII PLY file
-# o3d.io.write_point_cloud('exportascii.ply', point_cloud, write_ascii=True)
