@@ -102,15 +102,6 @@ def upload_blueprint():
 
 @app.route('/getBackendpng', methods=['GET'])
 def get_backendpng():
-    filename = get_full_path(DOWNLOAD_FOLDER, 'export.png')
-    remove_file_if_exists(filename)
-    os.system('python3 ' + SCRIPT_LOCATION + '/backend.py')
-    wait_for_file(filename)
-    return send_file(filename, as_attachment=True)
-
-
-@app.route('/getBackendpngNew', methods=['GET'])
-def get_backendpngNew():
     # File paths
     png_filename = get_full_path(DOWNLOAD_FOLDER, 'export.png')
     remove_file_if_exists(png_filename)
@@ -134,14 +125,6 @@ def get_backendpngNew():
 
 @app.route('/getBackendply', methods=['GET'])
 def get_backendply():
-    filename = get_full_path(DOWNLOAD_FOLDER, 'export.ply')
-    remove_file_if_exists(filename)
-    os.system('python3 ' + SCRIPT_LOCATION + '/backend2.py')
-    wait_for_file(filename)
-    return send_file(filename, as_attachment=True)
-
-@app.route('/getBackendplyNew', methods=['GET'])
-def get_backendplyNew():
     # File paths
     ply_filename = get_full_path(DOWNLOAD_FOLDER, 'export.ply')
     remove_file_if_exists(ply_filename)
@@ -160,15 +143,6 @@ def get_backendplyNew():
 
     # Return the file as a download
     return send_file(ply_filename, as_attachment=True)
-
-
-def wait_for_file(filename, timeout=60):
-    """Wait for a file to appear on the file system with a timeout."""
-    start_time = time.time()
-    while not os.path.exists(filename):
-        if time.time() - start_time > timeout:
-            raise TimeoutError(f"File {filename} was not generated in time.")
-        time.sleep(1)  # Check every 1 second
 
 if __name__ == '__main__':
     app.run()
