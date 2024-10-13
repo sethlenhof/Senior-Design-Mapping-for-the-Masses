@@ -173,23 +173,14 @@ tx = little[0]
 ty = little[2]
 tz = little[1]
 
-
 # load in subsection that was a best fit for user environment and display it if you want
 resultx = nodes[result].df[0]
 resulty = nodes[result].df[2]
-
-
 
 #prepare blue print for exporting
 df = blueprint
 #reverse the x dimension again since this is how the front end likes it
 df[0] = df[0] * -1
-
-point_cloud = o3d.geometry.PointCloud()
-point_cloud.points = o3d.utility.Vector3dVector(df[[0, 2, 1]].values)
-
-# # Save the point cloud as a PLY file
-# o3d.io.write_point_cloud('export.ply', point_cloud)
 
 point_cloud = o3d.geometry.PointCloud()
 point_cloud.points = o3d.utility.Vector3dVector(df[[0, 1, 2]].values)

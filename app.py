@@ -4,7 +4,12 @@ from flask import Flask, request, send_file
 import os, time
 from utils.conversion import UsdzToXyzConverter
 from utils.file_utils import save_file, remove_file_if_exists, get_full_path
-from utils.scene_manager import SceneManager
+from utils.process_data import process_point_clouds
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+import mpl_toolkits.mplot3d.art3d as art3d
+import open3d as o3d
 
 app = Flask(__name__, static_url_path='/myflaskapp/static')
 application = app
@@ -15,9 +20,6 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 UPLOAD_FOLDER = os.path.join(BASE_DIR, 'uploads')
 DOWNLOAD_FOLDER = os.path.join(BASE_DIR, 'downloads')
 SCRIPT_LOCATION = os.path.join(BASE_DIR, 'scripts')
-
-# Initialize the scene manager
-scene_manager = SceneManager(UPLOAD_FOLDER, DOWNLOAD_FOLDER)
 
 @app.route('/')
 def hello_world():
@@ -100,29 +102,47 @@ def upload_blueprint():
 
 @app.route('/getBackendpng', methods=['GET'])
 def get_backendpng():
-    filename = get_full_path(DOWNLOAD_FOLDER, 'export.png')
-    remove_file_if_exists(filename)
-    os.system('python3 ' + SCRIPT_LOCATION + '/backend.py')
-    wait_for_file(filename)
-    return send_file(filename, as_attachment=True)
+    # File paths
+    png_filename = get_full_path(DOWNLOAD_FOLDER, 'export.png')
+    remove_file_if_exists(png_filename)
+    
+    blueprint, little = process_point_clouds()
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    ax.scatter(blueprint[0], blueprint[2], blueprint[1], color='b', s=5)
+    ax.scatter(little[0], little[2], little[1], color='y', s=5)
 
+    # Birds-eye view
+    ax.view_init(elev=90, azim=0)
+    circle = plt.Circle((0, 0), 0.1, color='r')
+    ax.add_patch(circle)
+    art3d.pathpatch_2d_to_3d(circle, z=0, zdir='z')
+    ax.axis("equal")
+    
+    plt.savefig(png_filename)
+
+    return send_file(png_filename, as_attachment=True)
 
 @app.route('/getBackendply', methods=['GET'])
 def get_backendply():
-    filename = get_full_path(DOWNLOAD_FOLDER, 'export.ply')
-    remove_file_if_exists(filename)
-    os.system('python3 ' + SCRIPT_LOCATION + '/backend2.py')
-    wait_for_file(filename)
-    return send_file(filename, as_attachment=True)
+    # File paths
+    ply_filename = get_full_path(DOWNLOAD_FOLDER, 'export.ply')
+    remove_file_if_exists(ply_filename)
 
+    blueprint, _ = process_point_clouds()
 
-def wait_for_file(filename, timeout=60):
-    """Wait for a file to appear on the file system with a timeout."""
-    start_time = time.time()
-    while not os.path.exists(filename):
-        if time.time() - start_time > timeout:
-            raise TimeoutError(f"File {filename} was not generated in time.")
-        time.sleep(1)  # Check every 1 second
+    # Reverse the x values
+    blueprint[0] = blueprint[0] * -1
+
+    # Export the blueprint as a PLY file
+    point_cloud = o3d.geometry.PointCloud()
+    point_cloud.points = o3d.utility.Vector3dVector(blueprint[[0, 1, 2]].values)
+
+    # Save the point cloud as a PLY file
+    o3d.io.write_point_cloud(ply_filename, point_cloud, write_ascii=True)
+
+    # Return the file as a download
+    return send_file(ply_filename, as_attachment=True)
 
 if __name__ == '__main__':
     app.run()
