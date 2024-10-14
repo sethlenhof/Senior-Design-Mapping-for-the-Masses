@@ -16,6 +16,8 @@ Fabio Kok - Directional Implementation
 
 # Testing:
 
+To test run this:
+
 ````export FLASK_APP=app.py
 export FLASK_ENV=development
 flask run```
