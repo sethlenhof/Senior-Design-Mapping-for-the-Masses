@@ -109,8 +109,8 @@ def get_backendpng():
     blueprint, little = process_point_clouds()
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
-    ax.scatter(blueprint[0], blueprint[2], blueprint[1], color='b', s=5)
     ax.scatter(little[0], little[2], little[1], color='y', s=5)
+    ax.scatter(blueprint[0], blueprint[2], blueprint[1], color='b', s=5)
 
     # Birds-eye view
     ax.view_init(elev=90, azim=0)
