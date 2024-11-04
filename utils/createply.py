@@ -5,7 +5,7 @@ import scipy
 import open3d as o3d
 import os
 
-def create_ply():
+def createPly():
   #ignore warnings
   pd.set_option('mode.chained_assignment', None)
 

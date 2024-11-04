@@ -202,9 +202,3 @@ art3d.pathpatch_2d_to_3d(circle, z=0, zdir='z')
 ax.axis("equal")
 downloadfile = os.path.join(DOWNLOAD_FOLDER, 'export.png')
 plt.savefig(downloadfile)
-
-
-#prepare blue print for exporting
-df = blueprint
-#reverse the x dimension again since this is how the front end likes it
-df[0] = df[0] * -1

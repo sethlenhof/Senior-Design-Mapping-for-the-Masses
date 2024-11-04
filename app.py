@@ -5,7 +5,7 @@ import os
 from utils.conversion import UsdzToXyzConverter
 from utils.file_utils import save_file, remove_file_if_exists, get_full_path
 from utils.process_data import process_point_clouds
-from utils.point_cloud_utils import generate_png_image, generate_ply_point_cloud
+from utils.point_cloud_utils import generate_plot
 from utils.createPng import createPng
 from utils.createply import createPly
 import matplotlib
@@ -154,8 +154,9 @@ def get_backendpng():
     remove_file_if_exists(png_filename)
 
     # Generate PNG image using the refactored function
-    createPng()
-    
+    # createPng()
+    generate_plot(upload_folder=UPLOAD_FOLDER, download_folder=DOWNLOAD_FOLDER)
+
     return send_file(png_filename, as_attachment=True)
 
 @app.route('/getBackendply', methods=['GET'])
