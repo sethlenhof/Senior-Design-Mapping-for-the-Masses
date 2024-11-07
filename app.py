@@ -1,8 +1,8 @@
 # this is the controller for the endpoints
 
 from flask import Flask, request, send_file
-import os, time
-from utils.conversion import UsdzToXyzConverter
+import os
+from utils.conversion import usdz_to_xyz
 from utils.file_utils import save_file, remove_file_if_exists, get_full_path
 from utils.process_data import process_point_clouds
 import matplotlib
@@ -38,8 +38,7 @@ def convert_file():
     save_file(file, usdz_path)
 
     # Perform conversion
-    converter = UsdzToXyzConverter(usdz_path, xyz_path)
-    converter.convert()
+    usdz_to_xyz(usdz_path, xyz_path)
 
     return send_file(xyz_path, as_attachment=True)
 
@@ -78,9 +77,7 @@ def upload_user_environment_usdz():
     # Save the USDZ file
     save_file(file, usdz_path)
 
-    # Convert USDZ to XYZ (reuse the converter logic you already have)
-    converter = UsdzToXyzConverter(usdz_path, xyz_path)
-    converter.convert()
+    usdz_to_xyz(usdz_path, xyz_path)
 
     return "User Environment uploaded and converted successfully"
 
