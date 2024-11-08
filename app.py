@@ -5,7 +5,8 @@ import os
 from utils.conversion import usdz_to_xyz
 from utils.file_utils import save_file, remove_file_if_exists, get_full_path
 from utils.process_data import process_point_clouds
-from utils.imageAlignment import apply_transformation_and_visualize, read_xyz, error_pixels_from_image, xyz_to_image, feature_matching_with_geometric_constraints
+from utils.imageAlignment import error_pixels_from_image, xyz_to_image, feature_matching_with_geometric_constraints, align_images_and_calculate_vector, apply_transformation_and_visualize, read_xyz
+
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
@@ -140,48 +141,41 @@ def get_backendpngNew():
     remove_file_if_exists(output_image_path_error_pixels)
     remove_file_if_exists(aligned_image_path)
 
-    # Step 1: Read XYZ files and calculate boundaries
+    # Read the blueprint data and get the bounding box
     blueprint_points = read_xyz(xyz_file_path_blueprint)
     min_x_blueprint, max_x_blueprint = np.min(blueprint_points[:, 0]), np.max(blueprint_points[:, 0])
     min_z_blueprint, max_z_blueprint = np.min(blueprint_points[:, 2]), np.max(blueprint_points[:, 2])
     boundary = (min_x_blueprint, max_x_blueprint, min_z_blueprint, max_z_blueprint)
 
-    # Step 2: Calculate error pixels for the blueprint
-    error_pixels = error_pixels_from_image(
-        xyz_file_path_blueprint, output_image_path_error_pixels, boundary, padding_pixels=50, image_size=(500, 500)
-    )
+    # Generate an image for the blueprint and calculate error pixels
+    error_pixels = error_pixels_from_image(xyz_file_path_blueprint, output_image_path_error_pixels, boundary, padding_pixels=50, image_size=(500, 500))
 
-    # Step 3: Generate images for both the blueprint and scan point clouds
-    # For the blueprint, calculate the scale factor
-    scale_factor = xyz_to_image(
-        xyz_file_path_blueprint, output_image_path_blueprint, boundary, error_pixels, padding_pixels=50, image_size=(500, 500), is_blueprint=True
-    )
+    # Generate an image for the blueprint and calculate pixels per unit
+    scale_factor = xyz_to_image(xyz_file_path_blueprint, output_image_path_blueprint, boundary, error_pixels, padding_pixels=50, image_size=(500, 500), is_blueprint=True)
 
-    # For the scan point cloud, generate the image without calculating scale factor
-    xyz_to_image(
-        xyz_file_path_scan, output_image_path_scan, boundary, error_pixels, padding_pixels=50, image_size=(500, 500), is_blueprint=False
-    )
+    # Generate an image for a non-blueprint file (no pixels per unit calculation)
+    xyz_to_image(xyz_file_path_scan, output_image_path_scan, boundary, error_pixels, padding_pixels=50, image_size=(500, 500), is_blueprint=False)
 
-    # Step 4: Perform feature matching between the generated images to determine the transformation matrix
-    # Load images using OpenCV
+    # Load the two images to be matched
     img1 = cv2.imread(output_image_path_scan)
     img2 = cv2.imread(output_image_path_blueprint)
 
-    # Make sure the images are loaded correctly
-    if img1 is None or img2 is None:
-        return "Error: One or both images failed to load!", 500
+    # Perform feature matching with geometric constraints (translation and rotation only)
+    aligned_img1, transformation_matrix, matches, keypoints1, keypoints2, points1, points2 = feature_matching_with_geometric_constraints(img1, img2)
 
-    # Get transformation matrix using feature matching
-    _, transformation_matrix, _, _, _, _, _ = feature_matching_with_geometric_constraints(img1, img2)
-
-    # Step 5: Apply the transformation to the XYZ point cloud and visualize
-    apply_transformation_and_visualize(
-        blueprint_file=xyz_file_path_blueprint,
-        scan_file=xyz_file_path_scan,
-        aligned_image_file=aligned_image_path,
-        scale_factor=scale_factor,
-        transformation_matrix_2d=transformation_matrix
+    # Align img1 using the transformation matrix to align with img2 and calculate the vector difference
+    aligned_img1_with_center, img2_with_center, center_vector, transformed_center_img1, center_img2 = align_images_and_calculate_vector(
+        output_image_path_scan, output_image_path_blueprint, transformation_matrix
     )
+
+    # Create the transformation matrix for XYZ file with adjusted tx and ty
+    xyz_transformation_matrix = transformation_matrix.copy()
+    xyz_transformation_matrix[0, 2] = -center_vector[0]
+    xyz_transformation_matrix[1, 2] = -center_vector[1]
+
+    # Apply the transformation and visualize
+    apply_transformation_and_visualize(xyz_file_path_blueprint, xyz_file_path_scan, aligned_image_path, scale_factor, xyz_transformation_matrix)
+
 
     # Send the saved file as a response
     return send_file(aligned_image_path, as_attachment=True)
