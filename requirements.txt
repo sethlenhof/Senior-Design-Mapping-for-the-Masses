@@ -7,3 +7,5 @@ open3d-cpu
 aspose-3d
 usd2gltf
 usd-core
+pillow
+opencv-python
