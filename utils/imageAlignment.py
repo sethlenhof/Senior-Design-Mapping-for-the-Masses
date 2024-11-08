@@ -264,13 +264,6 @@ def calculate_pixels_per_unit_from_image(image_path, range_x, range_z, error_pix
 
     return final_pixels_per_unit
 
-xyz_file_path_blueprint = '/Users/sethlenhof/Code/Senior-Design-Mapping-for-the-Masses/uploads/blueprint.xyz' # secondFloor_even.xyz' # firstFloorSouth_even.xyz' # room1(2)_even.xyz'
-xyz_file_path_scan = '/Users/sethlenhof/Code/Senior-Design-Mapping-for-the-Masses/uploads/userEnvironment.xyz' # SameSpotWest_even.xyz' # KitchenNorth_even.xyz' # RoomSecondFloor_even.xyz' # room1_testcase5_even.xyz'
-output_image_path_blueprint = '/Users/sethlenhof/Code/Senior-Design-Mapping-for-the-Masses/image_matching/blueprint.png' # firstFloorSouth_even_output.png' # secondFloor_even_output.png' # room1(2)_even_output.png'
-output_image_path_scan = '/Users/sethlenhof/Code/Senior-Design-Mapping-for-the-Masses/image_matching/userScan.png' # SameSpotWest_even_output.png' # KitchenNorth_even_output.png' # RoomSecondFloor_even_output.png' # room1_testcase5_even_output.png'
-output_image_path_error_pixels = '/Users/sethlenhof/Code/Senior-Design-Mapping-for-the-Masses/image_matching/error_pixels.png'
-aligned_image_path = '/Users/sethlenhof/Code/Senior-Design-Mapping-for-the-Masses/downloads/aligned_image.png'
-
 # Read the blueprint data and get the bounding box
 blueprint_points = read_xyz(xyz_file_path_blueprint)
 
