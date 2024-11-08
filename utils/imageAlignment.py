@@ -264,22 +264,6 @@ def calculate_pixels_per_unit_from_image(image_path, range_x, range_z, error_pix
 
     return final_pixels_per_unit
 
-# Read the blueprint data and get the bounding box
-blueprint_points = read_xyz(xyz_file_path_blueprint)
-
-# Calculate the boundary of the blueprint
-min_x_blueprint, max_x_blueprint = np.min(blueprint_points[:, 0]), np.max(blueprint_points[:, 0])
-min_z_blueprint, max_z_blueprint = np.min(blueprint_points[:, 2]), np.max(blueprint_points[:, 2])
-boundary = (min_x_blueprint, max_x_blueprint, min_z_blueprint, max_z_blueprint)
-
-# Generate an image for the blueprint and calculate error pixels
-error_pixels = error_pixels_from_image(xyz_file_path_blueprint, output_image_path_error_pixels, boundary, padding_pixels=50, image_size=(500, 500))
-
-# Generate an image for the blueprint and calculate pixels per unit
-scale_factor = xyz_to_image(xyz_file_path_blueprint, output_image_path_blueprint, boundary, error_pixels, padding_pixels=50, image_size=(500, 500), is_blueprint=True)
-
-# Generate an image for a non-blueprint file (no pixels per unit calculation)
-xyz_to_image(xyz_file_path_scan, output_image_path_scan, boundary, error_pixels, padding_pixels=50, image_size=(500, 500), is_blueprint=False)
 
 ################################ 2nd Part ################################
 
@@ -356,29 +340,12 @@ def feature_matching_with_geometric_constraints(img1, img2):
 
     return aligned_img1, transformation_matrix, matches, keypoints1, keypoints2, points1, points2
 
-# Load the two images to be matched
-img1 = cv2.imread(output_image_path_scan)
-img2 = cv2.imread(output_image_path_blueprint)
-
-# Perform feature matching with geometric constraints (translation and rotation only)
-aligned_img1, transformation_matrix, matches, keypoints1, keypoints2, points1, points2 = feature_matching_with_geometric_constraints(img1, img2)
-
-# Align img1 using the transformation matrix to align with img2 and calculate the vector difference
-aligned_img1_with_center, img2_with_center, center_vector, transformed_center_img1, center_img2 = align_images_and_calculate_vector(
-    output_image_path_scan, output_image_path_blueprint, transformation_matrix
-)
-
 # print("Original Transformation Matrix:")
 # print(f"[{transformation_matrix[0, 0]}, {transformation_matrix[0, 1]}, {transformation_matrix[0, 2]}],")
 # print(f"[{transformation_matrix[1, 0]}, {transformation_matrix[1, 1]}, {transformation_matrix[1, 2]}]")
 
 # # Print the vector difference between centers
 # print(f"Vector difference between centers (dx, dy): {center_vector}")
-
-# Create the transformation matrix for XYZ file with adjusted tx and ty
-xyz_transformation_matrix = transformation_matrix.copy()
-xyz_transformation_matrix[0, 2] = -center_vector[0]
-xyz_transformation_matrix[1, 2] = -center_vector[1]
 
 # print("Transformation Matrix for XYZ file:")
 # print(f"[{xyz_transformation_matrix[0, 0]}, {xyz_transformation_matrix[0, 1]}, {xyz_transformation_matrix[0, 2]}],")
@@ -591,6 +558,46 @@ def apply_transformation_and_visualize(blueprint_file, scan_file, aligned_image_
     # Visualize the point clouds in the XZ plane using Matplotlib with the rotated arrow
     visualize_point_clouds_with_grid(blueprint_points, transformed_scan_points, transformed_origin[:3], direction_vector, aligned_image_file)
 
-# Apply the transformation and visualize
-apply_transformation_and_visualize(xyz_file_path_blueprint, xyz_file_path_scan, aligned_image_path, scale_factor, xyz_transformation_matrix)
 
+# xyz_file_path_blueprint = '/Users/sethlenhof/Code/Senior-Design-Mapping-for-the-Masses/uploads/blueprint.xyz' # secondFloor_even.xyz' # firstFloorSouth_even.xyz' # room1(2)_even.xyz'
+# xyz_file_path_scan = '/Users/sethlenhof/Code/Senior-Design-Mapping-for-the-Masses/uploads/userEnvironment.xyz' # SameSpotWest_even.xyz' # KitchenNorth_even.xyz' # RoomSecondFloor_even.xyz' # room1_testcase5_even.xyz'
+# output_image_path_blueprint = '/Users/sethlenhof/Code/Senior-Design-Mapping-for-the-Masses/image_matching/blueprint.png' # firstFloorSouth_even_output.png' # secondFloor_even_output.png' # room1(2)_even_output.png'
+# output_image_path_scan = '/Users/sethlenhof/Code/Senior-Design-Mapping-for-the-Masses/image_matching/userScan.png' # SameSpotWest_even_output.png' # KitchenNorth_even_output.png' # RoomSecondFloor_even_output.png' # room1_testcase5_even_output.png'
+# output_image_path_error_pixels = '/Users/sethlenhof/Code/Senior-Design-Mapping-for-the-Masses/image_matching/error_pixels.png'
+# aligned_image_path = '/Users/sethlenhof/Code/Senior-Design-Mapping-for-the-Masses/downloads/aligned_image.png'
+
+# # Read the blueprint data and get the bounding box
+# blueprint_points = read_xyz(xyz_file_path_blueprint)
+
+# # Calculate the boundary of the blueprint
+# min_x_blueprint, max_x_blueprint = np.min(blueprint_points[:, 0]), np.max(blueprint_points[:, 0])
+# min_z_blueprint, max_z_blueprint = np.min(blueprint_points[:, 2]), np.max(blueprint_points[:, 2])
+# boundary = (min_x_blueprint, max_x_blueprint, min_z_blueprint, max_z_blueprint)
+
+# # Generate an image for the blueprint and calculate error pixels
+# error_pixels = error_pixels_from_image(xyz_file_path_blueprint, output_image_path_error_pixels, boundary, padding_pixels=50, image_size=(500, 500))
+
+# # Generate an image for the blueprint and calculate pixels per unit
+# scale_factor = xyz_to_image(xyz_file_path_blueprint, output_image_path_blueprint, boundary, error_pixels, padding_pixels=50, image_size=(500, 500), is_blueprint=True)
+
+# # Generate an image for a non-blueprint file (no pixels per unit calculation)
+# xyz_to_image(xyz_file_path_scan, output_image_path_scan, boundary, error_pixels, padding_pixels=50, image_size=(500, 500), is_blueprint=False)
+# # Load the two images to be matched
+# img1 = cv2.imread(output_image_path_scan)
+# img2 = cv2.imread(output_image_path_blueprint)
+
+# # Perform feature matching with geometric constraints (translation and rotation only)
+# aligned_img1, transformation_matrix, matches, keypoints1, keypoints2, points1, points2 = feature_matching_with_geometric_constraints(img1, img2)
+
+# # Align img1 using the transformation matrix to align with img2 and calculate the vector difference
+# aligned_img1_with_center, img2_with_center, center_vector, transformed_center_img1, center_img2 = align_images_and_calculate_vector(
+#     output_image_path_scan, output_image_path_blueprint, transformation_matrix
+# )
+
+# # Create the transformation matrix for XYZ file with adjusted tx and ty
+# xyz_transformation_matrix = transformation_matrix.copy()
+# xyz_transformation_matrix[0, 2] = -center_vector[0]
+# xyz_transformation_matrix[1, 2] = -center_vector[1]
+
+# # Apply the transformation and visualize
+# apply_transformation_and_visualize(xyz_file_path_blueprint, xyz_file_path_scan, aligned_image_path, scale_factor, xyz_transformation_matrix)
