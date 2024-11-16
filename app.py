@@ -5,7 +5,8 @@ import os
 from utils.conversion import usdz_to_xyz
 from utils.file_utils import save_file, remove_file_if_exists, get_full_path
 from utils.process_data import process_point_clouds
-from utils.imageAlignment import error_pixels_from_image, xyz_to_image, feature_matching_with_geometric_constraints, align_images_and_calculate_vector, apply_transformation_and_visualize, read_xyz
+from utils.imageMatching import read_xyz, retrieve_and_convert_metadata, xyz_to_image, feature_matching_with_geometric_constraints, align_images_and_calculate_vector, apply_transformation_and_visualize
+from utils.blueprintCreation import bp_read_xyz, bp_save_with_metadata, bp_error_pixels_from_image, bp_xyz_to_image
 
 import matplotlib
 matplotlib.use('Agg')
@@ -99,6 +100,25 @@ def upload_blueprint():
     filename = get_full_path(UPLOAD_FOLDER, 'blueprint.xyz')
     remove_file_if_exists(filename)
     save_file(file, filename)
+
+    # process upload to png
+    blueprint_png = get_full_path(IMAGE_MATCHING_FOLDER, 'blueprint.png')
+    blueprint_points = bp_read_xyz(filename)
+    blueprint_error_pixels = get_full_path(IMAGE_MATCHING_FOLDER, 'error_pixels.png')
+
+    # calculate boundary
+    min_x_blueprint, max_x_blueprint = np.min(blueprint_points[:, 0]), np.max(blueprint_points[:, 0])
+    min_z_blueprint, max_z_blueprint = np.min(blueprint_points[:, 2]), np.max(blueprint_points[:, 2])
+    boundary = (min_x_blueprint, max_x_blueprint, min_z_blueprint, max_z_blueprint)
+
+    # Generate an image for the blueprint and calculate error pixels
+    error_pixels = bp_error_pixels_from_image(blueprint_points, blueprint_error_pixels, boundary, padding_pixels=50, image_size=(500, 500))
+
+    # Generate an image for the blueprint and calculate pixels per unit
+    scale_factor = bp_xyz_to_image(blueprint_points, blueprint_png, boundary, error_pixels, padding_pixels=50, image_size=(500, 500))
+
+    # Save the output_image_path_blueprint with metadata
+    bp_save_with_metadata(blueprint_png, boundary, error_pixels, scale_factor)
     return "Blueprint uploaded successfully"
 
 
@@ -132,50 +152,41 @@ def get_backendpngNew():
     xyz_file_path_scan = get_full_path(UPLOAD_FOLDER, 'userEnvironment.xyz')
     output_image_path_blueprint = get_full_path(IMAGE_MATCHING_FOLDER, 'blueprint.png')
     output_image_path_scan = get_full_path(IMAGE_MATCHING_FOLDER, 'userScan.png')
-    output_image_path_error_pixels = get_full_path(IMAGE_MATCHING_FOLDER, 'error_pixels.png')
     aligned_image_path = get_full_path(DOWNLOAD_FOLDER, 'aligned_image.png')
 
     # Remove existing images if they exist to prevent conflicts
-    remove_file_if_exists(output_image_path_blueprint)
     remove_file_if_exists(output_image_path_scan)
-    remove_file_if_exists(output_image_path_error_pixels)
     remove_file_if_exists(aligned_image_path)
 
-    # Read the blueprint data and get the bounding box
+    # Read the blueprint data and get bounding box / read scan
     blueprint_points = read_xyz(xyz_file_path_blueprint)
-    min_x_blueprint, max_x_blueprint = np.min(blueprint_points[:, 0]), np.max(blueprint_points[:, 0])
-    min_z_blueprint, max_z_blueprint = np.min(blueprint_points[:, 2]), np.max(blueprint_points[:, 2])
-    boundary = (min_x_blueprint, max_x_blueprint, min_z_blueprint, max_z_blueprint)
+    scan_points = read_xyz(xyz_file_path_scan)
 
-    # Generate an image for the blueprint and calculate error pixels
-    error_pixels = error_pixels_from_image(xyz_file_path_blueprint, output_image_path_error_pixels, boundary, padding_pixels=50, image_size=(500, 500))
+    # retrieve and convert metadata
+    boundary, error_pixels, scale_factor = retrieve_and_convert_metadata(output_image_path_blueprint)
 
-    # Generate an image for the blueprint and calculate pixels per unit
-    scale_factor = xyz_to_image(xyz_file_path_blueprint, output_image_path_blueprint, boundary, error_pixels, padding_pixels=50, image_size=(500, 500), is_blueprint=True)
+    # Convert the scan to an image
+    xyz_to_image(scan_points, output_image_path_scan, boundary, error_pixels, scale_factor)
 
-    # Generate an image for a non-blueprint file (no pixels per unit calculation)
-    xyz_to_image(xyz_file_path_scan, output_image_path_scan, boundary, error_pixels, padding_pixels=50, image_size=(500, 500), is_blueprint=False)
+    # load the images
+    img1 = cv2.imread(output_image_path_blueprint)
+    img2 = cv2.imread(output_image_path_scan)
 
-    # Load the two images to be matched
-    img1 = cv2.imread(output_image_path_scan)
-    img2 = cv2.imread(output_image_path_blueprint)
-
-    # Perform feature matching with geometric constraints (translation and rotation only)
+    # Feature matching with geometric constraints
     aligned_img1, transformation_matrix, matches, keypoints1, keypoints2, points1, points2 = feature_matching_with_geometric_constraints(img1, img2)
 
-    # Align img1 using the transformation matrix to align with img2 and calculate the vector difference
+    # Align the images and calculate the vector
     aligned_img1_with_center, img2_with_center, center_vector, transformed_center_img1, center_img2 = align_images_and_calculate_vector(
         output_image_path_scan, output_image_path_blueprint, transformation_matrix
     )
 
-    # Create the transformation matrix for XYZ file with adjusted tx and ty
+    # Create transofrmation matrix
     xyz_transformation_matrix = transformation_matrix.copy()
     xyz_transformation_matrix[0, 2] = -center_vector[0]
     xyz_transformation_matrix[1, 2] = -center_vector[1]
 
-    # Apply the transformation and visualize
-    apply_transformation_and_visualize(xyz_file_path_blueprint, xyz_file_path_scan, aligned_image_path, scale_factor, xyz_transformation_matrix)
-
+    # Apply transformation and visualize
+    apply_transformation_and_visualize(blueprint_points, scan_points, aligned_image_path, scale_factor, transformation_matrix)
 
     # Send the saved file as a response
     return send_file(aligned_image_path, as_attachment=True)
