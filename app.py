@@ -146,7 +146,7 @@ def get_backendpng():
     return send_file(png_filename, as_attachment=True)
 
 @app.route('/getNewPNG', methods=['GET'])
-def get_backendpngNew2():
+def get_backendImageMatching():
 
     # File paths generated dynamically using get_full_path
     xyz_file_path_blueprint = get_full_path(UPLOAD_FOLDER, 'blueprint.xyz')
