@@ -222,5 +222,12 @@ def get_backendply():
     # Return the file as a download
     return send_file(ply_filename, as_attachment=True)
 
+@app.route('/userXYZ', methods=['GET'])
+def get_userxyz():
+    # File paths
+    user_xyz = get_full_path(UPLOAD_FOLDER, 'userEnvironment.xyz')
+    return send_file(user_xyz, as_attachment=True)
+
+
 if __name__ == '__main__':
     app.run()
