@@ -156,6 +156,11 @@ def get_backendImageMatching():
     aligned_image_path = get_full_path(DOWNLOAD_FOLDER, 'aligned_image.png')
     output_image_path_error_pixels = get_full_path(IMAGE_MATCHING_FOLDER, 'error_pixels.png')
 
+    remove_file_if_exists(output_image_path_blueprint)
+    remove_file_if_exists(output_image_path_scan)
+    remove_file_if_exists(aligned_image_path)
+    remove_file_if_exists(output_image_path_error_pixels)
+
     # Read the blueprint data and get the bounding box / Read scan data
     blueprint_points = read_xyz(xyz_file_path_blueprint)
     scan_points = read_xyz(xyz_file_path_scan)
