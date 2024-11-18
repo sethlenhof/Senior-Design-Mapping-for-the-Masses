@@ -228,6 +228,11 @@ def get_userxyz():
     user_xyz = get_full_path(UPLOAD_FOLDER, 'userEnvironment.xyz')
     return send_file(user_xyz, as_attachment=True)
 
+@app.route('/userUSDZ', methods=['GET'])
+def get_userusdz():
+    # File paths
+    user_usdz = get_full_path(UPLOAD_FOLDER, 'userEnvironment.usdz')
+    return send_file(user_usdz, as_attachment=True)
 
 if __name__ == '__main__':
     app.run()
