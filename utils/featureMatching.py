@@ -362,12 +362,13 @@ def apply_transformation_and_visualize(blueprint_points, scan_points, aligned_im
     visualize_point_clouds_with_grid(blueprint_points, transformed_scan_points, transformed_origin[:3], direction_vector, aligned_image_file)
 
 # # How to use
-# xyz_file_path_blueprint = '/Users/sethlenhof/Code/MFTM-Algo/secondFloor.xyz' # secondFloor_even.xyz' # firstFloorSouth_even.xyz' # room1(2)_even.xyz'
-# xyz_file_path_scan = '/Users/sethlenhof/Code/MFTM-Algo/sethScan.xyz' # SameSpotWest_even.xyz' # KitchenNorth_even.xyz' # RoomSecondFloor_even.xyz' # room1_testcase5_even.xyz'
 # output_image_path_blueprint = '//Users/sethlenhof/Code/MFTM-Algo/image_matching/blueprint2f.png' # firstFloorSouth_even_output.png' # secondFloor_even_output.png' # room1(2)_even_output.png'
 # output_image_path_scan = '/Users/sethlenhof/Code/MFTM-Algo/image_matching/sethRoom.png' # SameSpotWest_even_output.png' # KitchenNorth_even_output.png' # RoomSecondFloor_even_output.png' # room1_testcase5_even_output.png'
 # output_image_path_error_pixels = '/Users/sethlenhof/Code/MFTM-Algo/image_matching/error_pixels.png'
 # aligned_image_path = '/Users/sethlenhof/Code/MFTM-Algo/image_matching/aligned.png'
+
+# xyz_file_path_blueprint = sys.argv[1]
+# xyz_file_path_scan = sys.argv[2]
 
 # # Read the blueprint data and get the bounding box / Read scan data
 # blueprint_points = read_xyz(xyz_file_path_blueprint)
