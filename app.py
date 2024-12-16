@@ -1,12 +1,12 @@
 # this is the controller for the endpoints
 
-from flask import Flask, request, send_file
+from flask import Flask, request, send_file, jsonify
 import os
 from utils.conversion import usdz_to_xyz
 from utils.file_utils import save_file, remove_file_if_exists, get_full_path
 from utils.process_data import process_point_clouds
 from utils.blueprintCreation import bp_read_xyz, bp_save_with_metadata, bp_error_pixels_from_image, bp_xyz_to_image
-from utils.featureMatching import read_xyz, error_pixels_from_image, xyz_to_image, feature_matching_with_geometric_constraints, align_images_and_calculate_vector, apply_transformation_and_visualize
+from utils.featureMatching import read_xyz, error_pixels_from_image, xyz_to_image, feature_matching_with_geometric_constraints, align_images_and_calculate_vector, apply_transformation_and_visualize, interpolate_gps
 
 import matplotlib
 matplotlib.use('Agg')
@@ -233,6 +233,24 @@ def get_userusdz():
     # File paths
     user_usdz = get_full_path(UPLOAD_FOLDER, 'userEnvironment.usdz')
     return send_file(user_usdz, as_attachment=True)
+
+@app.route('/get_gps', methods=['POST'])
+def get_gps():
+    # Get user Cartesian coordinates from the request
+    data = request.json
+    user_cartesian = data.get('cartesian', None)
+    geojson_file_path = data.get('geojson_file', 'path/to/your/geojson_file.geojson')
+
+    if user_cartesian is None:
+        return jsonify({"error": "Cartesian coordinates are required."}), 400
+
+    # Convert user_cartesian to a NumPy array
+    user_cartesian = np.array(user_cartesian)
+
+    # Interpolate GPS coordinates
+    user_gps = interpolate_gps(user_cartesian, geojson_file_path)
+
+    return jsonify({"gps_coordinates": user_gps.tolist()})
 
 if __name__ == '__main__':
     app.run()
