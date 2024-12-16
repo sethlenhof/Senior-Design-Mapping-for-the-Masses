@@ -4,6 +4,8 @@ import cv2
 import matplotlib.pyplot as plt
 from collections import defaultdict
 from PIL import Image
+from scipy.spatial import KDTree
+import json
 
 def read_xyz(file_path):
     """Read XYZ data from a file."""
@@ -360,6 +362,7 @@ def apply_transformation_and_visualize(blueprint_points, scan_points, aligned_im
 
     # Visualize the point clouds in the XZ plane using Matplotlib with the rotated arrow
     visualize_point_clouds_with_grid(blueprint_points, transformed_scan_points, transformed_origin[:3], direction_vector, aligned_image_file)
+    
 
 # # How to use
 # output_image_path_blueprint = '//Users/sethlenhof/Code/MFTM-Algo/image_matching/blueprint2f.png' # firstFloorSouth_even_output.png' # secondFloor_even_output.png' # room1(2)_even_output.png'
@@ -407,3 +410,67 @@ def apply_transformation_and_visualize(blueprint_points, scan_points, aligned_im
 
 # # Apply the transformation and visualize
 # apply_transformation_and_visualize(blueprint_points, scan_points, aligned_image_path, scale_factor, xyz_transformation_matrix)
+
+
+
+
+
+
+# Shawn's code begins here
+
+def load_geojson(file_path):
+    """Load GeoJSON data from a file."""
+    with open(file_path, 'r') as f:
+        geojson_data = json.load(f)
+    return geojson_data
+
+def extract_coordinates(geojson_data):
+    """Extract Cartesian and GPS coordinates from GeoJSON."""
+    cartesian_coords = []
+    gps_coords = []
+    
+    for feature in geojson_data['features']:
+        # Extract Cartesian coordinates from properties
+        cartesian = [
+            feature['properties']['field_1'],  # X coordinate
+            feature['properties']['field_2'],  # Y coordinate
+            feature['properties']['field_3']   # Z coordinate
+        ]
+        cartesian_coords.append(cartesian)
+        
+        # Extract GPS coordinates from geometry (longitude, latitude, altitude)
+        gps = feature['geometry']['coordinates']
+        # Ensure the order is [latitude, longitude, altitude]
+        gps_coords.append([gps[1], gps[0], gps[2]])  # Correcting the order to [lat, lon, alt]
+    
+    return np.array(cartesian_coords), np.array(gps_coords)
+def interpolate_gps(user_cartesian, geojson_file):
+    """Interpolate GPS coordinates based on user's Cartesian position."""
+    # Load GeoJSON data
+    geojson_data = load_geojson(geojson_file)
+    
+    # Extract coordinates
+    cartesian_coords, gps_coords = extract_coordinates(geojson_data)
+    
+    # Build a KD-tree for fast nearest neighbor search
+    kd_tree = KDTree(cartesian_coords)
+
+    # Find nearest neighbors
+    distances, indices = kd_tree.query(user_cartesian, k=4)  # Find 4 nearest points
+
+    # Check for valid distances
+    if np.any(distances == 0):
+        print("User's position matches one of the known points exactly.")
+        user_gps = gps_coords[indices][distances == 0][0]
+    else:
+        # Extract nearest points' GPS data
+        nearest_gps = gps_coords[indices]
+
+        # Compute weights based on distances
+        weights = 1 / distances
+        weights /= weights.sum()  # Normalize weights
+
+        # Interpolate GPS coordinates
+        user_gps = np.dot(weights, nearest_gps)
+
+    return user_gps
