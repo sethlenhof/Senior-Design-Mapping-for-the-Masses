@@ -302,7 +302,11 @@ def get_gps():
     # Interpolate GPS coordinates using transformed_origin
     user_gps = interpolate_gps(np.array([transformed_origin[0], transformed_origin[2]]), geojson_file_path)
 
-    return jsonify({"gps_coordinates": user_gps.tolist()})
+    # Return the GPS coordinates in a structured format
+    return jsonify({
+        "latitude": user_gps[0],
+        "longitude": user_gps[1]
+    })
 
 if __name__ == '__main__':
     app.run()
