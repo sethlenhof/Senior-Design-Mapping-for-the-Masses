@@ -301,7 +301,7 @@ def get_gps():
         transformed_origin = transformation_matrix_3d @ origin.T
         
         # Interpolate GPS coordinates using transformed_origin
-        user_gps = interpolate_gps(np.array([transformed_origin[0], transformed_origin[2]]), geojson_file_path)
+        user_gps = interpolate_gps(transformed_origin[:3], geojson_file_path)
 
         # Return the GPS coordinates in a structured format
         return jsonify({
