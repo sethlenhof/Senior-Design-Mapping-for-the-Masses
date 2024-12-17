@@ -305,8 +305,8 @@ def get_gps():
 
         # Return the GPS coordinates in a structured format
         return jsonify({
-            "latitude": transformed_origin[0],
-            "longitude": transformed_origin[2]
+            "latitude": user_gps[0],
+            "longitude": user_gps[2]
         })
     except Exception as e:
         return jsonify({"error": str(e)}), 500
